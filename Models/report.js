@@ -26,7 +26,8 @@ const  reportSchema = mongoose.Schema({
     Q21: String,
     Q22: String,
     time : String,
-    date : String
+    date : String,
+    status : {type : String , default : 'pending'}
 })
 
 module.exports = mongoose.model('Report',reportSchema)

@@ -76,7 +76,7 @@ router.post('/addReport', async (req, res) => {
                 .save()
                 .then(result => {
                     res.status(200).json(result)
-                    mailer.noticeEmail(req.session.user.name,req.session.user.email,result.date,result.time)
+                    mailer.noticeEmail(req.session.user.name, req.session.user.email, result.date, result.time)
                 })
                 .catch(error => {
                     res.status(500).json({ error: error.message })
@@ -104,63 +104,101 @@ router.get("/getAllReports", async (req, res) => {
 })
 
 //////////////////// FOR ADMIN /////////////////////
-router.get("/getReportByUserId/:id",async(req,res)=>{
+router.get("/getReportByUserId/:id", async (req, res) => {
     try {
-        Report.find({user_id : req.params.id}).exec()
-        .then(result=>{
-            if(result != 0){
-                res.status(200).json(result)
-            }else{
-                res.status(404).json({message : 'user id not found'})
-            }
-        })
-        .catch(error=>{
-            res.status(500).json({error : error.message})
-        })
+        Report.find({ user_id: req.params.id }).exec()
+            .then(result => {
+                if (result != 0) {
+                    res.status(200).json(result)
+                } else {
+                    res.status(404).json({ message: 'user id not found' })
+                }
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message })
+            })
     } catch (error) {
-        res.status(500).json({error : error.message})
+        res.status(500).json({ error: error.message })
     }
 })
 
 //////////////////// FOR USER //////////////////////
-router.get("/getMyReports",async(req,res)=>{
+router.get("/getMyReports", async (req, res) => {
     try {
-        Report.find({user_id : req.session.user._id}).exec()
+        if (req.session.user != null) {
+            Report.find({ user_id: req.session.user._id }).exec()
+                .then(result => {
+                    if (result != 0) { }
+                    res.status(200).json(result)
+                })
+                .catch(error => {
+                    res.status(500).json({ error: error.message })
+                })
+        }else{
+            res.status(401).json({message : 'please login to continue'})
+        }
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+router.get("/getReportById/:id", async (req, res) => {
+    try {
+        Report.find({ _id: req.params.id }).exec()
+            .then(result => {
+                if (result != 0) {
+                    res.status(200).json(result)
+                } else {
+                    res.status(404).json({ message: 'report id not found' })
+                }
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message })
+            })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+router.get('/getReportsNumberPerUser/:id', async (req, res) => {
+    try {
+        Report.find({ user_id: req.params.id }).exec()
+            .then(result => {
+                res.status(200).json(result.length)
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message })
+            })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+
+router.post('/respondToReport/:id', async (req, res) => {
+    try {
+        Report.findByIdAndUpdate(req.params.id, { status: req.body.status }).exec()
+            .then(result => {
+                if (result != null) {
+                    res.status(200).json({ message: 'updated successfully' })
+                } else {
+                    res.status(404).json({ message: 'id not found' })
+                }
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message })
+            })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+router.get('/getReportsByStatus',async(req,res)=>{
+    try {
+        Report.find({status : req.body.status}).exec()
         .then(result=>{
-            if(result != 0){}
             res.status(200).json(result)
-        })
-        .catch(error=>{
-            res.status(500).json({error : error.message})
-        })
-    } catch (error) {
-        res.status(500).json({error : error.message})
-    }
-})
-
-router.get("/getReportById/:id",async(req,res)=>{
-    try {
-        Report.find({ _id : req.params.id}).exec()
-        .then(result=>{
-            if(result != 0){
-                res.status(200).json(result)
-            }else{
-                res.status(404).json({message : 'report id not found'})
-            }
-        })
-        .catch(error=>{
-            res.status(500).json({error : error.message})
-        })
-    } catch (error) {
-        res.status(500).json({error : error.message})
-    }
-})
-
-router.get('/getReportsNumberPerUser/:id',async(req,res)=>{
-    try {
-        Report.find({user_id : req.params.id}).exec()
-        .then(result=>{
-            res.status(200).json(result.length)
         })
         .catch(error=>{
             res.status(500).json({error : error.message})
