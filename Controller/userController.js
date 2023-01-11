@@ -26,45 +26,54 @@ router.post('/register', async (req, res) => {
                         user
                             .save()
                             .then(result => {
-                                const report = new Report({
-                                    _id: mongoose.Types.ObjectId(),
-                                    user_id: result._id,
-                                    Q1 : req.session.answers.Q1,
-                                    Q2 : req.session.answers.Q2,
-                                    Q3 : req.session.answers.Q3,
-                                    Q4 : req.session.answers.Q4,
-                                    Q5 : req.session.answers.Q5,
-                                    Q6 : req.session.answers.Q6,
-                                    Q7 : req.session.answers.Q7,
-                                    Q8 : req.session.answers.Q8,
-                                    Q9 : req.session.answers.Q9,
-                                    Q10 : req.session.answers.Q10,
-                                    Q11 : req.session.answers.Q11,
-                                    Q12 : req.session.answers.Q12,
-                                    Q13 : req.session.answers.Q13,
-                                    Q14 : req.session.answers.Q14,
-                                    Q15 : req.session.answers.Q15,
-                                    Q16 : req.session.answers.Q16,
-                                    Q17 : req.session.answers.Q17,
-                                    Q18 : req.session.answers.Q18,
-                                    Q19 : req.session.answers.Q19,
-                                    Q20 : req.session.answers.Q20,
-                                    Q21 : req.session.answers.Q21,
-                                    Q22 : req.session.answers.Q22,
-                                    time : req.session.answers.time,
-                                    date : req.session.answers.date,
-                                });
-                                req.session.user = result
-                                report
-                                    .save()
-                                    .then(result => {
-                                        res.status(200).json({ message: result })
-                                        mailer.noticeEmail(req.session.user.name,req.session.user.email,req.session.answers.date,req.session.answers.time)
-                                        delete req.session.answers
-                                    })
-                                    .catch(error => {
-                                        res.status(500).json({ error: error.message })
-                                    })
+                                if(req.session.answers != null){
+                                    const report = new Report({
+                                        _id: mongoose.Types.ObjectId(),
+                                        user_id: result._id,
+                                        Q1 : req.session.answers.Q1,
+                                        Q2 : req.session.answers.Q2,
+                                        Q3 : req.session.answers.Q3,
+                                        Q4 : req.session.answers.Q4,
+                                        Q5 : req.session.answers.Q5,
+                                        Q6 : req.session.answers.Q6,
+                                        Q7 : req.session.answers.Q7,
+                                        Q8 : req.session.answers.Q8,
+                                        Q9 : req.session.answers.Q9,
+                                        Q10 : req.session.answers.Q10,
+                                        Q11 : req.session.answers.Q11,
+                                        Q12 : req.session.answers.Q12,
+                                        Q13 : req.session.answers.Q13,
+                                        Q14 : req.session.answers.Q14,
+                                        Q15 : req.session.answers.Q15,
+                                        Q16 : req.session.answers.Q16,
+                                        Q17 : req.session.answers.Q17,
+                                        Q18 : req.session.answers.Q18,
+                                        Q19 : req.session.answers.Q19,
+                                        Q20 : req.session.answers.Q20,
+                                        Q21 : req.session.answers.Q21,
+                                        Q22 : req.session.answers.Q22,
+                                        time : req.session.answers.time,
+                                        date : req.session.answers.date,
+                                    });
+                                    req.session.user = result
+                                    delete req.session.answers
+                                    report
+                                        .save()
+                                        .then(result => {
+                                            res.status(200).json({ message: result })
+                                           // mailer.noticeEmail(req.session.user.name,req.session.user.email,req.session.answers.date,req.session.answers.time)
+                                            
+                                        })
+                                        .catch(error => {
+                                            res.status(500).json({ error: error.message })
+                                        })
+                                    }
+                                    else{
+
+                                        res.status(200).json(result)
+                                    }
+                                
+                                
                             })
                             .catch((error) => {
                                 res.status(500).json(error.message)
