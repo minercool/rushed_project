@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const Report = require('../Models/report')
+const User = require('../Models/user')
 const mongoose = require('mongoose')
 const moment = require('moment')
 const mailer = require('./email/mailer')
@@ -134,8 +135,8 @@ router.get("/getMyReports", async (req, res) => {
                 .catch(error => {
                     res.status(500).json({ error: error.message })
                 })
-        }else{
-            res.status(401).json({message : 'please login to continue'})
+        } else {
+            res.status(401).json({ message: 'please login to continue' })
         }
 
     } catch (error) {
@@ -181,7 +182,18 @@ router.post('/respondToReport/:id', async (req, res) => {
         Report.findByIdAndUpdate(req.params.id, { status: req.body.status }).exec()
             .then(result => {
                 if (result != null) {
-                    res.status(200).json({ message: 'updated successfully' })
+                    if (req.body.status == 'valid') {
+                        User.findById(result.user_id).exec()
+                            .then(result => {
+                                mailer.respondEmail(result.email)
+                                res.status(200).json({ message: 'updated successfully' })
+                            })
+                            .catch(error => {
+                                res.status(500).json({ error: error.message })
+                            })
+                    }else{
+                        res.status(200).json({message : 'status updated'})
+                    }
                 } else {
                     res.status(404).json({ message: 'id not found' })
                 }
@@ -194,16 +206,16 @@ router.post('/respondToReport/:id', async (req, res) => {
     }
 })
 
-router.get('/getReportsByStatus',async(req,res)=>{
+router.get('/getReportsByStatus', async (req, res) => {
     try {
-        Report.find({status : req.body.status}).exec()
-        .then(result=>{
-            res.status(200).json(result)
-        })
-        .catch(error=>{
-            res.status(500).json({error : error.message})
-        })
+        Report.find({ status: req.body.status }).exec()
+            .then(result => {
+                res.status(200).json(result)
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message })
+            })
     } catch (error) {
-        res.status(500).json({error : error.message})
+        res.status(500).json({ error: error.message })
     }
 })
