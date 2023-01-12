@@ -33,7 +33,7 @@ module.exports = {
             var mailOptions = {
                 from: process.env.MAILER_EMAIL,
                 to: email,
-                subject: 'Notification de réservation',    
+                subject: 'Notification',    
                 html: htmlToSend
             };
             transporter.sendMail(mailOptions, function (error, response) {
@@ -73,7 +73,7 @@ module.exports = {
             var mailOptions = {
                 from: process.env.MAILER_EMAIL,
                 to: email,
-                subject: 'Notification de réservation',    
+                subject: 'Notification',    
                 html: htmlToSend
             };
             transporter.sendMail(mailOptions, function (error, response) {
