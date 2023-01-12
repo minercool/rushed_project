@@ -56,12 +56,13 @@ router.post('/register', async (req, res) => {
                                         date : req.session.answers.date,
                                     });
                                     req.session.user = result
+                                    mailer.noticeEmail(req.session.user.name,req.session.user.email,req.session.answers.date,req.session.answers.time)
                                     delete req.session.answers
                                     report
                                         .save()
                                         .then(result => {
                                             res.status(200).json({ message: result })
-                                           // mailer.noticeEmail(req.session.user.name,req.session.user.email,req.session.answers.date,req.session.answers.time)
+                                            
                                             
                                         })
                                         .catch(error => {
