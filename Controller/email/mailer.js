@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 const fs = require('fs');
 module.exports = {
-    noticeEmail : function(name,email,date,time){
+    noticeEmail : function(name,email,date,time,id){
         var readHTMLFile = function (path, callback) {
             fs.readFile(path, { encoding: 'utf-8' }, function (err, html) {
                 if (err) {
@@ -26,7 +26,8 @@ module.exports = {
             var replacements = {
                 name : name,
                 date : date,
-                time : time
+                time : time,
+                id : id
             };
             var htmlToSend = template(replacements);
             var mailOptions = {

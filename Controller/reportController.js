@@ -76,7 +76,7 @@ router.post('/addReport', async (req, res) => {
                 .save()
                 .then(result => {
                     res.status(200).json(result)
-                    mailer.noticeEmail(req.session.user.name, req.session.user.email, result.date, result.time)
+                    mailer.noticeEmail(req.session.user.name, req.session.user.email, result.date, result.time, result._id)
                 })
                 .catch(error => {
                     res.status(500).json({ error: error.message })
