@@ -1,9 +1,10 @@
 const router = require('express').Router()
 const Report = require('../Models/report')
-const User = require('../Models/user')
+
 const mongoose = require('mongoose')
 const moment = require('moment')
 const mailer = require('./email/mailer')
+const User = require("../Models/user");
 
 module.exports = router
 
@@ -42,12 +43,12 @@ router.post('/sessionReport', async (req, res) => {
     }
 })
 
-router.post('/addReport', async (req, res) => {
+
+router.post('/addReport/:id', async (req, res) => {
     try {
-        if (req.session.user != null) {
             const report = new Report({
                 _id: mongoose.Types.ObjectId(),
-                user_id: req.session.user._id,
+                user_id: req.params.id,
                 Q1: req.body.Q1,
                 Q2: req.body.Q2,
                 Q3: req.body.Q3,
@@ -73,18 +74,30 @@ router.post('/addReport', async (req, res) => {
                 time: moment().format('HH:mm'),
                 date: moment().format('DD/MM/YYYY'),
             })
-            report
+                report
                 .save()
                 .then(result => {
+                    try {
+                        User.findById(req.params.id).exec()
+                            .then(ress => {
+                                if (ress) {
+                                    mailer.noticeEmail(ress.name, ress.email, result.date, result.time, result._id)
+
+                                } else {
+                                    res.status(404).json({ message: 'id not found' })
+                                }
+                            })
+                            .catch(error => {
+                                res.status(500).json({ message: error.message })
+                            })
+                    } catch (error) {
+                        res.status(500).json({ error: error.message })
+                    }
                     res.status(200).json(result)
-                    mailer.noticeEmail(req.session.user.name, req.session.user.email, result.date, result.time, result._id)
                 })
                 .catch(error => {
                     res.status(500).json({ error: error.message })
                 })
-        } else {
-            res.status(401).json({ message: 'please login to continue' })
-        }
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
